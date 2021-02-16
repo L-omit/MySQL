@@ -1,2 +1,2 @@
 # MySQL
-MySQL code I wrote durint second year.
+MySQL code I wrote during second year.
