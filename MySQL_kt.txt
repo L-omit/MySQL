@@ -1,0 +1,357 @@
+# use M3426;
+#---------------------------------------------------------------------------------------
+#---------------------------------------KOTITEHTÄVÄT 1----------------------------------
+#----------------------------------------------------------------------------------------
+
+# Hae kaikki osastotiedot siten, että hakutuloksessa näytetään kymmenen 
+# osastoa alkaen seitsemännestä osastosta.
+
+# select * from DEPT limit 10 offset 6;
+
+#------------------------------------------------------------------------------
+
+#  Hae kaikki paikkakunnat, joista työntekijät ovat kotoisin. 
+# Lajittele tulokset paikkakunnan mukaan 
+# (HUOM: Samaa paikkakuntaa ei saa tulla listaukseen kahta kertaa!).
+
+# select distinct PROV from EMPS order by PROV
+
+#--------------------------------------------------------------------------------
+
+# Hae kaikki työntekijät, joiden arvo (rate) on suurempi kuin 9. 
+# Lajittele tulokset arvon mukaan siten, että pienin arvo esitetään ensin.
+
+# select * from EMPS where rate > 9 order by rate asc
+
+#---------------------------------------------------------------------------------
+
+# Hae työntekijät (nimi ja arvo), joiden arvo (rate) on välillä 8-12. 
+# Lajittele tulokset arvon mukaan siten, että suurin arvo esitetään ensin.
+
+# select GNAME, SURNAME, RATE from EMPS where RATE BETWEEN 8 and 12 order by RATE desc
+
+#---------------------------------------------------------------------------------
+
+# Hae kaikki työntekijät, joiden sukunimi alkaa S-kirjaimella. 
+#Lajittele tulokset ensisijaisesti sukunimen ja sitten etunimen mukaan.
+
+# select SURNAME, GNAME from EMPS where SURNAME LIKE 'S%' order by SURNAME, GNAME
+
+#-----------------------------------------------------------------------------------
+
+# Hae kaikki työntekijät, joiden osasto ei ole A, B tai C. 
+# Koeta löytää kolme eri ratkaisuvaihtoehtoa. Mikä vaihtoehdoista on mielestäsi paras?
+
+# select * from DEPT where DEPT NOT LIKE 'A%' and  DEPT NOT LIKE 'B%' AND DEPT NOT LIKE 'C%'
+# select * from DEPT where DEPT NOT IN ('A', 'B', 'C') TÄMÄ ON MIELESTÄNI PARAS
+# select * from DEPT where DEPT BETWEEN 'D' AND 'ÖÖ'
+
+#-----------------------------------------------------------------------------------
+
+# Hae työntekijät, joiden puhelinnumeron kolmas numero on 7 ja 
+# joiden kaupunki on joko Edmonton tai Newton.
+
+# select PHONE, CITY from EMPS where PHONE like '__7%' and (CITY='Edmonton' OR CITY='Newton')
+
+#------------------------------------------------------------------------------------
+
+# Hae sellaiset osastot, joiden budjetti on välillä 16000-17000, 
+# vastuuhenkilön (manager) sukunimi ei lopu C-kirjaimeen ja 
+# jonka tehtävä on DIV (tehtävän nimen perässä voi olla mikä tahansa numero).
+
+# select * from DEPT where BUDGET BETWEEN 16000 AND 17000 and (reverse(MANAGER) NOT LIKE 'C%') and (DUTY LIKE 'DIV%')
+
+
+
+#----------------------------------------------------------------------------------------------
+#---------------------------------------------KOTITEHTÄVÄT 3-----------------------------------------
+#------------------------------------------------------------------------------------------------------------
+
+
+
+# Montako työntekijää on tietokannassa? Anna tulosjoukon sarakkeelle aliasnimi HloLkm.
+
+# select COUNT(EMPNUM) AS HloLkm from EMPS
+
+#-----------------------------------------------------------------------------------------------
+
+# Paljonko on rate-arvojen keskiarvo? Ilmoita tulos tulosjoukossa kahden desimaalin tarkkuudella.
+
+# select ROUND(AVG(RATE),2) from EMPS
+
+#------------------------------------------------------------------------------------------
+
+# Mitkä ovat suurin ja pienin rate-arvo työntekijöiden taulussa? Anna sarakkeille tulosjoukkoon kuvaavat nimet.
+
+# select MAX(RATE) AS suurinrate, MIN(RATE) AS pieninrate from EMPS
+
+#--------------------------------------------------------------------------------------------------
+
+# Mikä on osastoilla A-G työskentelevien työntekijöiden rate-arvojen summa?
+
+# select DEPT, SUM(RATE) from EMPS where DEPT IN ('A', 'B', 'C', 'D', 'E', 'F', 'G')
+# select DEPT, SUM(RATE) from EMPS where DEPT BETWEEN 'A' AND 'G'
+# En ole varma kumpaa tässä tarkoitettiin niin laitoin molemmat. DEPT voi olla siis BB CC.....
+
+#---------------------------------------------------------------------------------------------
+
+# Etsi ne osastot (osaston tunnus riittää), joiden työntekijöiden arvojen summa on yli 100.
+# Lisää tulosjoukon listaukseen arvojen summa mukaan.
+
+# select DEPT, SUM(RATE) from EMPS GROUP BY DEPT HAVING SUM(RATE) > 100
+
+#---------------------------------------------------------------------------------------------------
+
+# Kuinka monesta eri kaupungista on työntekijöitä?
+
+# SELECT COUNT(DISTINCT CITY) FROM EMPS
+
+#------------------------------------------------------------------------------------------------------
+
+# Tee luokittelu työntekijöille siten, että työntekijät, joiden kotikaupunki alkaa kirjaimilla A-M, 
+# ilmaistaan arvolla "ekat" ja kaikki muut arvoilla "muut". 
+# Anna tulosjoukon sarakkeelle jokin kuvaava nimi. 
+# Tuo lisäksi tulosjoukkoon työntekijöiden etu- ja sukunimet, kaupungit ja puhelinnumerot.
+/*
+SELECT GNAME, SURNAME, CITY, PHONE,
+	CASE CITY
+		WHEN CITY BETWEEN 'A%' AND 'N%' THEN 'MUUT'
+		ELSE 'EKAT'
+	END AS KATEGORIA
+FROM EMPS
+*/
+#-------------------------------------------------------------------------------------------------------
+
+# Tee lista työntekijöistä siten, että tulosjoukon listauksessa esitetään työntekijät muodossa: 
+# Aaltonen, M (sukunimi ja etunimen ensimmäinen kirjain).
+
+# SELECT CONCAT(SURNAME, ', ', SUBSTRING(GNAME, 1,1)) AS NIMI FROM EMPS
+
+#-------------------------------------------------------------------------------------------
+
+/*
+Mitä seuraava SELECT-käsky palauttaa ja miksi (HUOM: ei liity Ocelot-harjoitustietokantaan!):
+	
+SELECT CURRENT_USER, <-------------------------- valitaan käyttäjä
+    CASE
+        WHEN CAST(CURRENT_DATE AS CHAR(10)) <= '2011-02-22' <---------------- muutetaan päivämärää merkkimuotoiseksi
+        THEN 'OK' <---------------- jos päivämäärä on alle 22.02.2011 niin ok
+        ELSE 'Myöhässä' <------------ muuten myöhässä
+    END as Tarkastus
+FROM kohdetaulu
+# palauttaa arvon myöhässä jos mennään nykypäivämäärän mukaan eli 20.4.2020. palautaa arvon koska case funktio vertaa
+# onko päivämäärä alle halutun vai ei
+
+*/
+
+
+
+#-------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------KOTITEHTÄVÄT 4-------------------------------------------
+#-------------------------------------------------------------------------------------------------------------
+
+
+
+# Hae osaston A työntekijät formaatissa "SUKUNIMI A" (sukunimi ja etunimen ensimmäinen kirjain). 
+# Lajittele hakutulokset sukunimen mukaan. Ota listaukseen mukaan osaston tehtävä (Duty). 
+# Hae tulokset käyttäen molempia seuraavista:
+#	Uusi liitossyntaksi
+#	Vanha liitossyntaksi
+/*
+SELECT DEPT.DEPT, DEPT.DUTY, CONCAT(EMPS.SURNAME, ', ', SUBSTRING(EMPS.GNAME, 1,1)) AS NAME 
+FROM EMPS, DEPT
+WHERE DEPT.DEPT = EMPS.DEPT AND DEPT.DEPT= 'A'
+ORDER BY SURNAME
+*/
+/*
+SELECT DEPT.DEPT, DEPT.DUTY, CONCAT(EMPS.SURNAME, ', ', SUBSTRING(EMPS.GNAME, 1,1)) AS NAME
+FROM EMPS INNER JOIN DEPT
+ON DEPT.DEPT = EMPS.DEPT AND DEPT.DEPT = 'A'
+ORDER BY SURNAME
+*/
+
+#-------------------------------------------------------------------------------------------------------
+
+# Hae MB-provinssista (PROV) kotoisin olevat henkilöt (työntekijän numero ja koko nimi), joiden manageri on Black D.
+/*
+SELECT DEPT.MANAGER, EMPS.GNAME, EMPS.SURNAME, EMPS.EMPNUM, EMPS.PROV
+FROM EMPS, DEPT
+WHERE DEPT.MANAGER = 'Black D' and EMPS.DEPT = DEPT.DEPT AND PROV ='MB'
+*/
+
+#--------------------------------------------------------------------------------------------------------
+
+# Hae kaikki managerit, joilla on yli 10 alaista. Tulosjoukkoon tulee managerin lisäksi alaisten lukumäärä. 
+# Nimeä tulosjoukon sarakkeet "Manageri" ja "Alaisia". 
+# Lajittele hakutulokset alaisten lukumäärän mukaan laskevaan järjestykseen.
+/*
+SELECT DEPT.MANAGER AS MANAGERI, COUNT(EMPS.EMPNUM) AS ALAISIA
+FROM EMPS, DEPT
+WHERE EMPS.DEPT = DEPT.DEPT
+GROUP BY DEPT.MANAGER ORDER BY COUNT(EMPS.EMPNUM) DESC
+*/
+
+#----------------------------------------------------------------------------------------------------------
+
+# Tee listaus yhteen sarakkeeseen, johon tulee sekä työntekijöiden nimet (etunimi, sukunimi) että managerien nimet. 
+# Tulosjoukkoon sarakkeen nimeksi "nimi". Toiseen sarakkeeseen tulee tieto siitä, onko kyseessä työntekijä vai pomo. 
+# Toisen sarakkeen nimeksi tulee "Tyyppi". Lajittelu ensisijaisesti tyypin ja sitten nimen mukaan.
+/*
+SELECT CONCAT(EMPS.SURNAME, ', ', SUBSTRING(EMPS.GNAME, 1,1)) AS NIMI, 'TYÖNTEKIJÄ' AS TYYPPI
+FROM EMPS JOIN DEPT
+	UNION
+SELECT DEPT.MANAGER, 'POMO' AS TYYPPI
+FROM DEPT JOIN EMPS
+ORDER BY TYYPPI ASC, NIMI asc
+*/
+
+#------------------------------------------------------------------------------------------------------------
+
+# Hae tietokannasta alikyselyn avulla kaikki työntekijät, joiden rate-arvo on suurin mahdollinen.
+
+# select EMPNUM, RATE from EMPS 
+#	where rate = (select MAX(rate) from EMPS)
+
+#------------------------------------------------------------------------------------------------------------
+
+# Hae tietokannasta sellaiset A-osastoon kuuluvat henkilöt, 
+# joilla on eri rate-arvo kuin B-osastolaisilla (Vinkki: Käytä IN-alikyselyä!)
+
+/*
+select DEPT, RATE, EMPNUM from EMPS
+	WHERE RATE NOT IN (SELECT RATE FROM EMPS WHERE DEPT = 'B') AND DEPT = 'A'
+*/
+
+#------------------------------------------------------------------------------------------------------------
+
+# Listaa osastoon A kuuluvat henkilöt vain jos A-osaston budjetti on suurempi kuin 50000.
+
+#  SELECT EMPNUM, DEPT.DEPT, BUDGET FROM EMPS, DEPT
+# WHERE BUDGET > ANY
+#	(SELECT BUDGET FROM DEPT WHERE BUDGET = 50000)
+# ORDER BY DEPT
+
+#-------------------------------------------------------------------------------------
+
+# Listaa työntekijät, jotka eivät ole managereina osastoilla 
+# (Vinkki: Muista tuoda työntekijöiden nimet vertailussa samaan formaattiin kuin managerien!).
+
+# SELECT CONCAT(EMPS.SURNAME, ', ', SUBSTRING(EMPS.GNAME, 1,1)) AS NIMI, 'TYÖNTEKIJÄ' AS TYYPPI
+# FROM EMPS JOIN DEPT
+#	UNION
+# SELECT DEPT.MANAGER, 'POMO' AS TYYPPI
+# FROM DEPT JOIN EMPS
+# ORDER BY TYYPPI ASC, NIMI asc
+
+
+
+#--------------------------------------------------------------------------------------------------------
+#----------------------------------------------KOTITEHTÄVÄT 5----------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------
+
+
+
+# Luo SALARIES-niminen taulu, johon sijoitetaan sarakkeet
+#	salaryID (pääavain, joka yksilöi taulun rivitiedot)
+#   empnum (kenen palkasta on kyse, ei saa olla tyhjä arvo)
+#   salary (palkan suuruus kahden desimaalin tarkkuudella
+/*
+CREATE TABLE SALARIES
+(salaryID smallint NOT NULL AUTO_INCREMENT,
+empnum DECIMAL(3,0) NOT NULL,
+salary decimal(10, 2),
+constraint pk_salaryID primary key (salaryID))
+*/
+
+#---------------------------------------------------------------------------------------------------------
+
+# Luo viite-eheys SALARIES- ja EMPS-taulujen välille siten, että päivitykset vyörytetään (UPDATE CASCADE) 
+# ja poistot estetään (DELETE NO ACTION). 
+# Vihje: Aloita selvittämällä mikä on yhteinen sarake SALARIES- ja EMPS-taulujen osalta.
+/*
+ALTER TABLE SALARIES
+ADD CONSTRAINT fk_empnum FOREIGN KEY (empnum)
+REFERENCES EMPS (EMPNUM)
+ON UPDATE CASCADE
+ON DELETE NO ACTION
+*/
+
+#-------------------------------------------------------------------------------------------------------------------------
+
+# Lisää SALARIES-tauluun palkan voimaantuloa varten sarake fromdate, 
+# jonka sisällöksi tulee automaattisesti tämä kuluva päivämäärä (voi sisältää myös kellonajan).
+/*
+ALTER TABLE SALARIES
+MODIFY COLUMN fromdate 
+TIMESTAMP DEFAULT 0 
+ON UPDATE CURRENT_TIMESTAMP
+*/
+
+#----------------------------------------------------------------------------------------------------------------------
+
+# Lisää tauluun rajoitin, joka estää yli 10000 euron palkan lisäämisen tauluun.
+/*
+
+DELIMITER $$
+    CREATE TRIGGER TESTI BEFORE INSERT ON SALARIES
+        FOR EACH ROW
+            BEGIN
+            IF NEW.salary > 10000
+                THEN set NEW.salary = NULL;
+            END IF;
+        END $$
+*/
+
+# Aseta taulun avainsarakkeelle vielä automaattinen laskuri (AUTO_INCREMENT), 
+# jolloin ID-numero käsitellään automaattisesti lisättäessä uutta palkkatietoa tauluun.
+
+/*
+ALTER TABLE SALARIES
+MODIFY COLUMN salaryID smallint NOT NULL auto_increment
+*/
+
+
+
+#----------------------------------------------------------------------------------------
+#------------------------------------------KOTITEHTÄVÄT 6---------------------------------------------
+#---------------------------------------------------------------------------------------
+
+
+
+# Lisää tietokantaan kaksi riviä: henkilölle 10 palkkaa 1000 
+# ja henkilölle 20 palkkaa 2000. Laita fromdate-kenttään tämä päivä.
+
+#INSERT INTO SALARIES (salaryID, empnum, salary, fromdate) VALUES ('', 10, 1000, '2020.04.21 16.04'), ('', 20, 2000, '2020.04.21 16.04')
+
+#------------------------------------------------------------------------------------------------
+
+# Muuta henkilön 20 palkaksi 2500.
+
+# UPDATE SALARIES SET salary = 2500 WHERE empnum = 20
+
+#-----------------------------------------------------------------------------------------
+
+# Luo taulu nimeltä PALKKAHISTORIA, jossa on sarakkeet:
+# empnum (3 numeroa, ei desimaaleja, pakollinen) 
+# (salary (6 numeroa, 2 desimaalia)
+# fromdate (vvvv-kk-pp)
+/*
+create table PALKKAHISTORIA
+(empnum decimal(3, 0) not null,
+salary decimal(6,2),
+fromdate timestamp)
+*/
+
+#---------------------------------------------------------------------------------
+
+# Lisää kaikki SALARIES-taulun rivit PALKKAHISTORIA-tauluun.
+
+# INSERT INTO PALKKAHISTORIA(empnum, salary, fromdate)
+# SELECT EMPNUM, SALARY, fromdate
+# FROM SALARIES
+
+#-----------------------------------------------------------------------------------
+
+# Poista työntekijän 20 tiedot PALKKAHISTORIA-taulusta.
+
+# DELETE FROM PALKKAHISTORIA WHERE empnum = 20;
